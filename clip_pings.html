@@ -26,18 +26,14 @@
     height:100%;
     font-family: "Source Sans Pro","Helvetica Neue",Helvetica,Arial,sans-serif;
   }
-  .content{
-    height:inherit;
-    weight:inherit;
-  }
   .main{
-    height:inherit;
-    weight:inherit;
+    height:100%;
+    width:100%;
   }
 
   #map {
-    height: 100%;
-    width: 100%;
+    height: 85%;
+    width:100%;
   }
   </style>
 </head>
@@ -46,9 +42,8 @@
     <div id="main">
       <center>
         <h1 style="font-family:calibri">Clip Pings</h1>
-        <br>
         <div style="padding:0px 0px 5px 0px">
-          <button ng-click="centerMexico()" class="btn btn-success" ng-disabled="true">Center Mexico</button>
+          <button ng-click="centerMexico()" class="btn btn-success">Center Mexico</button>
           &nbsp;
           <button ng-click="refresh()" class="btn btn-info">Refresh</button>
         </div>
@@ -58,6 +53,7 @@
       var map;
       var headQuarter;
       var commandCenter;
+      var centerMexico;
       var initialize = function(){
         map = new google.maps.Map(document.getElementById('map'), {
           scaleControl: true,
@@ -95,8 +91,13 @@
           commandCenterInfo.setContent('Command Center');
           commandCenterInfo.open(map, commandCenter);
         });
+
+        centerMexico = function(){
+          map.panTo({lat:22.3685477, lng: -105.1810522})
+        };
       };
       initialize();
+
       </script>
     </div>
   </div>
@@ -108,7 +109,7 @@
   //ping map controller function
   function mapPingController($scope, $http){
 
-    var refresh = function(coordinates){
+    var timeoutFunction = function(coordinates){
       (function initiateLoop (x) {
         setTimeout(function () {
           setPing(coordinates[x]);
@@ -117,13 +118,13 @@
       })(coordinates.length - 1);
     };
 
-    var setPing = function(coordinates){
+    var setPing = function(coordinate){
       var ping = new google.maps.Marker({
         map: window.map,
         //animation: google.maps.Animation.BOUNCE,
         position: {
-          lat: coordinates.lat,
-          lng: coordinates.lng
+          lat: coordinate.lat,
+          lng: coordinate.lng
         }
       });
 
@@ -167,7 +168,7 @@
       {'lat': 26.3685477, 'lng': -103.1810522},
       {'lat': 17.3685477, 'lng': -95.1810522},
       {'lat': 21.3685477, 'lng': -100.1810522},
-            {'lat': 20.3685477, 'lng': -100.1810522},
+      {'lat': 20.3685477, 'lng': -100.1810522},
       {'lat': 24.142641, 'lng': -110.312753},
       {'lat': 22.3685477, 'lng': -103.1810522},
       {'lat': 23.3685477, 'lng': -99.1810522},
@@ -203,7 +204,7 @@
       {'lat': 26.3685477, 'lng': -103.1810522},
       {'lat': 17.3685477, 'lng': -95.1810522},
       {'lat': 21.3685477, 'lng': -100.1810522},
-            {'lat': 20.3685477, 'lng': -100.1810522},
+      {'lat': 20.3685477, 'lng': -100.1810522},
       {'lat': 24.142641, 'lng': -110.312753},
       {'lat': 22.3685477, 'lng': -103.1810522},
       {'lat': 23.3685477, 'lng': -99.1810522},
@@ -239,7 +240,7 @@
       {'lat': 26.3685477, 'lng': -103.1810522},
       {'lat': 17.3685477, 'lng': -95.1810522},
       {'lat': 21.3685477, 'lng': -100.1810522},
-            {'lat': 20.3685477, 'lng': -100.1810522},
+      {'lat': 20.3685477, 'lng': -100.1810522},
       {'lat': 24.142641, 'lng': -110.312753},
       {'lat': 22.3685477, 'lng': -103.1810522},
       {'lat': 23.3685477, 'lng': -99.1810522},
@@ -314,9 +315,12 @@
       {'lat': 18.3685477, 'lng': -103.1810522}
     ];
 
+    var refresh = function(coordinates){
+      timeoutFunction(coordinates);
+    };
+
     $scope.centerMexico = function(){
-      window.initialize();
-      refresh(coordinates);
+      window.centerMexico();
     };
 
     $scope.refresh = function(){
@@ -326,5 +330,6 @@
     refresh(coordinates);
   }
   </script>
+
 </body>
 </html>

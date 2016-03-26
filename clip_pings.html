@@ -19,7 +19,8 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
   <!-- Angular -->
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.2/angular.min.js"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdnOWxg4xOAkRHIYGF0cwhwOPqbYRgueQ"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdnOWxg4xOAkRHIYGF0cwhwOPqbYRgueQ&libraries=visualization"></script>
+
   <style>
   html,body {
     width:100%;
@@ -46,6 +47,10 @@
           <button ng-click="centerMexico()" class="btn btn-success">Center Mexico</button>
           &nbsp;
           <button ng-click="refresh()" class="btn btn-info">Refresh</button>
+          &nbsp;
+          <button ng-click="showHeatMap()" class="btn btn-warning">Show/Refresh Heat Map</button>
+          &nbsp;
+          <button ng-click="hideHeatMap()" class="btn btn-warning">Hide Heat Map</button>
         </div>
         <div id="map" class=container></div>
       </center>
@@ -91,10 +96,6 @@
           commandCenterInfo.setContent('Command Center');
           commandCenterInfo.open(map, commandCenter);
         });
-
-        centerMexico = function(){
-          map.panTo({lat:22.3685477, lng: -105.1810522})
-        };
       };
       initialize();
 
@@ -108,11 +109,35 @@
 
   //ping map controller function
   function mapPingController($scope, $http){
+    $scope.coordinates = [];
+    var heatmap;
+
+    $scope.showHeatMap = function(){
+      if(heatmap != undefined && heatmap != null){
+        heatmap.setMap(null);
+      }
+
+      setTimeout(function(){
+        heatmap = new google.maps.visualization.HeatmapLayer({
+          data: $scope.coordinates,
+          map: map
+        });
+      }, 1*1000);
+    };
+
+    $scope.hideHeatMap = function(){
+      if(heatmap != undefined && heatmap != null){
+        heatmap.setMap(null);
+      }
+    };
 
     var timeoutFunction = function(coordinates){
       (function initiateLoop (x) {
         setTimeout(function () {
           setPing(coordinates[x]);
+          if(x == 0){
+            console.log(x);
+          }
           if (--x > -1) initiateLoop(x);
         }, 1000);
       })(coordinates.length - 1);
@@ -316,14 +341,20 @@
     ];
 
     var refresh = function(coordinates){
+      for(x = 0; x < coordinates.length; x++){
+        console.log(x);
+        $scope.coordinates.push(new google.maps.LatLng(coordinates[x].lat,coordinates[x].lng));
+      }
+
       timeoutFunction(coordinates);
     };
 
     $scope.centerMexico = function(){
-      window.centerMexico();
+      window.map.panTo({lat:22.3685477, lng: -105.1810522});
     };
 
     $scope.refresh = function(){
+      $scope.coordinates = [];
       refresh(coordinates);
     };
 
